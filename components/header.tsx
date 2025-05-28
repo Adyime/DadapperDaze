@@ -40,22 +40,23 @@ export default function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all",
-        isScrolled ? "bg-background/80 backdrop-blur-sm border-b" : "bg-background",
+        "sticky top-0 z-50 w-full transition-all bg-white/90 backdrop-blur border-b border-drb-light shadow-sm",
+        isScrolled && "shadow-md"
       )}
     >
-      <div className="container mx-auto flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-            NextCommerce
+      <div className="max-w-7xl mx-auto flex h-20 items-center justify-between px-4 sm:px-8">
+        {/* Logo/Brand */}
+        <div className="flex items-center gap-8">
+          <Link href="/" className="font-heading text-2xl font-extrabold text-drb-pink tracking-tight">
+            DaDapperDaze
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-8">
             <Link
               href="/products"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                pathname === "/products" ? "text-primary" : "text-muted-foreground",
+                "font-heading text-base font-semibold transition-colors hover:text-drb-pink",
+                pathname === "/products" ? "text-drb-pink" : "text-drb-gray"
               )}
             >
               Products
@@ -63,8 +64,8 @@ export default function Header() {
             <Link
               href="/categories"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                pathname === "/categories" ? "text-primary" : "text-muted-foreground",
+                "font-heading text-base font-semibold transition-colors hover:text-drb-pink",
+                pathname === "/categories" ? "text-drb-pink" : "text-drb-gray"
               )}
             >
               Categories
@@ -72,7 +73,9 @@ export default function Header() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Actions */}
+        <div className="flex items-center gap-3 md:gap-4">
+          {/* Search */}
           <div className="hidden md:flex relative">
             {showSearch ? (
               <form action="/products" className="relative">
@@ -80,27 +83,28 @@ export default function Header() {
                   type="search"
                   name="q"
                   placeholder="Search products..."
-                  className="w-[200px] pr-8"
+                  className="w-[200px] pr-8 rounded-full border-drb-light bg-drb-light/60 text-drb-dark placeholder:text-drb-gray"
                   autoFocus
                   onBlur={() => setShowSearch(false)}
                 />
-                <Button type="submit" size="icon" variant="ghost" className="absolute right-0 top-0 h-full px-3">
-                  <Search className="h-4 w-4" />
+                <Button type="submit" size="icon" variant="ghost" className="absolute right-0 top-0 h-full px-3 text-drb-pink">
+                  <Search className="h-5 w-5" />
                   <span className="sr-only">Search</span>
                 </Button>
               </form>
             ) : (
-              <Button variant="ghost" size="icon" onClick={() => setShowSearch(true)}>
-                <Search className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="text-drb-pink" onClick={() => setShowSearch(true)}>
+                <Search className="h-5 w-5" />
                 <span className="sr-only">Search</span>
               </Button>
             )}
           </div>
 
+          {/* Cart */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="relative text-drb-pink">
+                <ShoppingCart className="h-6 w-6" />
                 <span className="sr-only">Open cart</span>
               </Button>
             </SheetTrigger>
@@ -109,11 +113,12 @@ export default function Header() {
             </SheetContent>
           </Sheet>
 
+          {/* User */}
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="text-drb-pink">
+                  <User className="h-6 w-6" />
                   <span className="sr-only">Open user menu</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -139,15 +144,16 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild className="font-heading text-drb-pink">
               <Link href="/login">Login</Link>
             </Button>
           )}
 
+          {/* Mobile Nav */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="md:hidden text-drb-pink">
+                <Menu className="h-6 w-6" />
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>

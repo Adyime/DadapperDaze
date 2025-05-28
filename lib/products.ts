@@ -214,30 +214,72 @@ export const getFeaturedProducts = cache(async (limit = 8) => {
       description: true,
       price: true,
       discountedPrice: true,
-      categoryId: true,
-      images: {
-        take: 1,
-        orderBy: {
-          order: 'asc'
-        },
-        select: {
-          id: true,
-          image: true,
-          color: true,
-        },
-      },
       category: {
         select: {
           name: true,
           slug: true,
         },
       },
+      variants: {
+        select: {
+          id: true,
+          color: true,
+          size: true,
+          stock: true,
+        },
+        orderBy: {
+          color: 'asc'
+        }
+      },
+      images: {
+        select: {
+          id: true,
+          image: true,
+          color: true,
+          order: true
+        },
+        orderBy: [
+          { color: 'asc' },
+          { order: 'asc' }
+        ]
+      }
     },
   })
 
-  await setCache(cacheKey, products, 60 * 10) // Cache for 10 minutes
+  // Process products to group variants by color and match images
+  const processedProducts = products.map(product => {
+    // Get unique colors from variants
+    const uniqueColors = [...new Set(product.variants.map(v => v.color))]
 
-  return products
+    // Group variants by color
+    const variantsByColor = product.variants.reduce((acc, variant) => {
+      if (!acc[variant.color]) {
+        acc[variant.color] = []
+      }
+      acc[variant.color].push(variant)
+      return acc
+    }, {} as Record<string, typeof product.variants>)
+
+    // Match images with colors
+    const processedImages = uniqueColors.map(color => {
+      // Find image for this color, or fall back to first image
+      const colorImage = product.images.find(img => img.color === color) || product.images[0]
+      return {
+        color,
+        image: colorImage,
+        variants: variantsByColor[color] || []
+      }
+    })
+
+    return {
+      ...product,
+      colorOptions: processedImages
+    }
+  })
+
+  await setCache(cacheKey, processedProducts, 60 * 10) // Cache for 10 minutes
+
+  return processedProducts
 })
 
 // Get product by slug

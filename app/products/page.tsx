@@ -35,15 +35,15 @@ export default async function ProductsPage({
   })
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Products</h1>
+    <div className="min-h-screen bg-drb-light w-full px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+      <h1 className="section-title">All Products</h1>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-64 flex-shrink-0">
+      <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto">
+        <aside className="w-full md:w-64 flex-shrink-0 mb-8 md:mb-0">
           <ProductFilters categories={categories} />
-        </div>
+        </aside>
 
-        <div className="flex-1">
+        <main className="flex-1">
           <Suspense fallback={<ProductListSkeleton />}>
             <SimpleProductList 
               initialProducts={products} 
@@ -54,7 +54,7 @@ export default async function ProductsPage({
               page={page} 
             />
           </Suspense>
-        </div>
+        </main>
       </div>
     </div>
   )

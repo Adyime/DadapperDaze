@@ -10,6 +10,10 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			heading: ["Poppins", "Montserrat", "Inter", "sans-serif"],
+  			body: ["Nunito", "Open Sans", "sans-serif"],
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -60,7 +64,16 @@ const config: Config = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
+  			},
+  			drb: {
+  				pink: "#FE7BB4",
+  				light: "#F7F7F7",
+  				muted: "#D99EB7",
+  				dark: "#140F12",
+  				gray: "#554553",
+  				purple: "#5037B4",
+  				brown: "#AD6050",
+  			},
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

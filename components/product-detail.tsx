@@ -223,11 +223,12 @@ export default function ProductDetail({
   }, [carouselApi])
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-      <div className="space-y-4">
+    <div className="max-w-7xl mx-auto py-10 px-4 grid grid-cols-1 md:grid-cols-2 gap-y-12 gap-x-16 md:gap-y-0">
+      {/* Left: Images */}
+      <div className="flex flex-col gap-6 md:pr-8">
         {/* Main image carousel */}
         <Carousel 
-          className="w-full relative" 
+          className="w-full relative rounded-2xl shadow-lg bg-drb-light"
           setApi={setCarouselApi}
           opts={{
             startIndex: selectedImageIndex,
@@ -237,26 +238,22 @@ export default function ProductDetail({
           <CarouselContent>
             {isLoadingImages ? (
               <CarouselItem>
-                <div className="relative aspect-square">
-                  <div className="absolute inset-0 flex items-center justify-center bg-muted rounded-lg">
-                    <span className="text-muted-foreground">Loading images...</span>
-                  </div>
+                <div className="relative aspect-square rounded-2xl bg-drb-light flex items-center justify-center">
+                  <span className="text-drb-gray font-sans">Loading images...</span>
                 </div>
               </CarouselItem>
             ) : colorImages.length > 0 ? (
               colorImages.map((image, index) => (
                 <CarouselItem key={image.id || index}>
-                  <div className="relative aspect-square">
+                  <div className="relative aspect-square rounded-2xl overflow-hidden border border-drb-light">
                     <Image
                       src={image.imageUrl || "/placeholder.svg?height=600&width=600"}
                       alt={`${product.name} - ${selectedColor || 'product'} - view ${index + 1}`}
                       fill
-                      className="object-cover rounded-lg"
+                      className="object-cover"
                       priority={index === 0}
                       onError={(e) => {
-                        console.error(`Error loading image: ${image.id}`);
-                        console.error(`Image URL was: ${image.imageUrl}`);
-                        // @ts-ignore - currentTarget exists on error event
+                        // @ts-ignore
                         const target = e.currentTarget as HTMLImageElement;
                         target.src = "/placeholder.svg?height=600&width=600";
                       }}
@@ -266,33 +263,31 @@ export default function ProductDetail({
               ))
             ) : (
               <CarouselItem>
-                <div className="relative aspect-square">
-                  <div className="absolute inset-0 flex items-center justify-center bg-muted rounded-lg">
-                    <span className="text-muted-foreground">No image available</span>
-                  </div>
+                <div className="relative aspect-square rounded-2xl bg-drb-light flex items-center justify-center">
+                  <span className="text-drb-gray font-sans">No image available</span>
                 </div>
               </CarouselItem>
             )}
           </CarouselContent>
-          
           {colorImages.length > 1 && !isLoadingImages && (
             <>
-              <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2" />
-              <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2" />
+              <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-drb-dark hover:bg-drb-pink hover:text-white shadow rounded-full" />
+              <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-drb-dark hover:bg-drb-pink hover:text-white shadow rounded-full" />
             </>
           )}
         </Carousel>
-        
-        {/* Image thumbnails */}
+        {/* Thumbnails */}
         {colorImages.length > 1 && !isLoadingImages && (
-          <div className="flex space-x-2 overflow-x-auto py-2">
+          <div className="flex space-x-3 overflow-x-auto py-2">
             {colorImages.map((image, index) => (
               <button
                 key={image.id || index}
                 onClick={() => handleThumbnailClick(index)}
-                className={`relative h-16 w-16 border rounded-md overflow-hidden flex-shrink-0 transition-all
-                  ${index === selectedImageIndex ? 'ring-2 ring-primary' : 'hover:ring-1 hover:ring-muted-foreground'}
+                className={`relative h-16 w-16 border-2 rounded-xl overflow-hidden flex-shrink-0 transition-all
+                  ${index === selectedImageIndex ? 'border-drb-pink ring-2 ring-drb-pink' : 'border-drb-light hover:border-drb-pink'}
                 `}
+                aria-label={`View image ${index + 1}`}
+                tabIndex={0}
               >
                 <Image
                   src={image.imageUrl || "/placeholder.svg?height=600&width=600"}
@@ -300,7 +295,7 @@ export default function ProductDetail({
                   fill
                   className="object-cover"
                   onError={(e) => {
-                    // @ts-ignore - currentTarget exists on error event
+                    // @ts-ignore
                     const target = e.currentTarget as HTMLImageElement;
                     target.src = "/placeholder.svg?height=600&width=600";
                   }}
@@ -309,41 +304,42 @@ export default function ProductDetail({
             ))}
           </div>
         )}
-        
-        {/* Color variant thumbnails in a single row */}
-        <div className="flex flex-wrap gap-2 mt-4">
+        {/* Color variant thumbnails */}
+        <div className="flex flex-wrap gap-3 mt-2">
+          <span className="block w-full text-sm font-sans text-drb-dark mb-1">Choose color:</span>
           {colorImagesMap.map((item, index) => {
             const isSelected = item.color === selectedColor
-            
             return (
               <button 
                 key={index}
                 type="button"
                 onClick={() => handleColorSelect(item.color)}
-                className={`
-                  relative h-16 w-16 border overflow-hidden rounded-md transition-all
-                  ${isSelected ? 'ring-2 ring-primary' : 'hover:ring-1 hover:ring-muted-foreground'}
+                className={`relative h-12 w-12 border-2 rounded-full overflow-hidden transition-all flex items-center justify-center
+                  ${isSelected ? 'border-drb-pink ring-2 ring-drb-pink' : 'border-drb-light hover:border-drb-pink'}
+                  focus:outline-none focus:ring-2 focus:ring-drb-pink
                 `}
                 title={item.color}
+                aria-label={`Select color ${item.color}`}
+                tabIndex={0}
               >
                 {item.image ? (
                   <Image
                     src={item.image.imageUrl || "/placeholder.svg?height=600&width=600"}
                     alt={`${product.name} - ${item.color}`}
                     fill
-                    className="object-cover"
+                    className="object-cover rounded-full"
                     onError={(e) => {
-                      // @ts-ignore - currentTarget exists on error event
+                      // @ts-ignore
                       const target = e.currentTarget as HTMLImageElement;
                       target.src = "/placeholder.svg?height=600&width=600";
                     }}
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                    <span className="text-xs text-muted-foreground">{item.color}</span>
+                  <div className="absolute inset-0 bg-drb-light flex items-center justify-center rounded-full">
+                    <span className="text-xs text-drb-gray font-sans">{item.color}</span>
                   </div>
                 )}
-                <div className="absolute bottom-0 inset-x-0 bg-background/80 text-center text-xs py-0.5">
+                <div className="absolute bottom-0 inset-x-0 bg-white/80 text-center text-xs py-0.5 font-sans rounded-b-full">
                   {item.color}
                 </div>
               </button>
@@ -351,73 +347,69 @@ export default function ProductDetail({
           })}
         </div>
       </div>
-
-      <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{product.name}</h1>
-          <p className="text-muted-foreground">{product.category.name}</p>
+      {/* Right: Product info */}
+      <div className="flex flex-col gap-8 md:pl-8">
+        <div className="flex flex-col gap-2 border-b border-drb-light pb-4">
+          <h1 className="font-heading text-4xl font-extrabold text-drb-dark mb-0 leading-tight">{product.name}</h1>
+          <p className="text-drb-pink font-heading text-lg font-semibold">{product.category.name}</p>
         </div>
-
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-4">
           {product.discountedPrice && product.discountedPrice < product.price ? (
             <>
-              <span className="text-2xl font-bold">{formatPrice(product.discountedPrice)}</span>
-              <span className="text-muted-foreground line-through">{formatPrice(product.price)}</span>
-              <span className="text-sm font-medium text-green-600">
+              <span className="text-3xl font-extrabold text-drb-pink font-heading">{formatPrice(product.discountedPrice)}</span>
+              <span className="text-drb-gray line-through font-sans">{formatPrice(product.price)}</span>
+              <span className="text-base font-semibold text-green-600 font-sans">
                 {Math.round(((product.price - product.discountedPrice) / product.price) * 100)}% off
               </span>
             </>
           ) : (
-            <span className="text-2xl font-bold">{formatPrice(product.price)}</span>
+            <span className="text-3xl font-extrabold text-drb-pink font-heading">{formatPrice(product.price)}</span>
           )}
         </div>
-
         {/* Color display */}
         {selectedColor && (
-          <div>
-            <p className="font-medium">Color: <span className="text-muted-foreground">{selectedColor}</span></p>
+          <div className="mb-2">
+            <p className="font-sans font-medium text-drb-dark">Color: <span className="text-drb-pink font-semibold">{selectedColor}</span></p>
           </div>
         )}
-
         {/* Size selection */}
         {availableSizes.length > 0 && (
           <div className="space-y-2">
-            <p className="font-medium">Size: 
-              {selectedSize && <span className="text-muted-foreground ml-1">{selectedSize}</span>}
-            </p>
-            <div className="flex flex-wrap gap-2">
+            <span className="block text-sm font-sans text-drb-dark mb-1">Choose size:</span>
+            <div className="flex flex-wrap gap-3">
               {availableSizes.map((size: string) => {
                 const isSelected = size === selectedSize
                 const isAvailable = getVariantAvailability(selectedColor!, size)
-                
                 return (
                   <button 
                     key={size}
                     type="button"
                     onClick={() => handleSizeSelect(size)}
                     disabled={!isAvailable}
-                    className={`
-                      w-10 h-10 rounded-md flex items-center justify-center border transition-colors
-                      ${isSelected ? 'bg-primary text-primary-foreground border-primary' : ''}
-                      ${!isAvailable ? 'opacity-40 cursor-not-allowed' : 'hover:bg-muted'}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center border-2 font-heading text-lg font-bold transition-colors
+                      ${isSelected ? 'bg-drb-pink text-white border-drb-pink' : 'bg-white text-drb-dark border-drb-light'}
+                      ${!isAvailable ? 'opacity-40 cursor-not-allowed' : 'hover:bg-drb-light hover:border-drb-pink'}
+                      focus:outline-none focus:ring-2 focus:ring-drb-pink
                     `}
+                    aria-label={`Select size ${size}`}
+                    tabIndex={0}
                   >
-                    <span className="text-sm font-medium">{size}</span>
+                    <span>{size}</span>
                   </button>
                 )
               })}
             </div>
           </div>
         )}
-
-        <p className="text-muted-foreground">{product.description}</p>
-
-        <ProductVariantSelector
-          productId={product.id}
-          variants={product.variants}
-          selectedColor={selectedColor}
-          selectedSize={selectedSize}
-        />
+        <p className="text-drb-gray font-sans text-base leading-relaxed mt-2 mb-4">{product.description}</p>
+        <div className="pt-2">
+          <ProductVariantSelector
+            productId={product.id}
+            variants={product.variants}
+            selectedColor={selectedColor}
+            selectedSize={selectedSize}
+          />
+        </div>
       </div>
     </div>
   )
