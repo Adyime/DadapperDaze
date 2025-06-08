@@ -1,91 +1,123 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useSession } from "next-auth/react"
-import { Search } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import SearchSuggestions from "@/components/search-suggestions";
 
 export default function MobileNav() {
-  const pathname = usePathname()
-  const { data: session } = useSession()
-  const [showSearch, setShowSearch] = useState(false)
+  const pathname = usePathname();
+  const { data: session } = useSession();
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const isAdmin = session?.user?.role === "ADMIN"
+  const isAdmin = session?.user?.role === "ADMIN";
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      window.location.href = `/products?q=${encodeURIComponent(
+        searchQuery.trim()
+      )}`;
+    }
+  };
 
   return (
-    <div className="flex flex-col h-full gap-6 p-4">
+    <div className="flex flex-col h-full font-sans gap-6 p-4 bg-white dark:bg-neutral-900 text-black dark:text-white">
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-          NextCommerce
+          <Image src={"/logo.png"} alt="logo" width={150} height={150} />
         </Link>
       </div>
 
       {showSearch ? (
-        <form action="/products" className="relative">
+        <form onSubmit={handleSearchSubmit} className="relative">
           <Input
             type="search"
             name="q"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search products..."
-            className="w-full pr-8"
+            className="w-full pr-8 rounded-full border-drb-light bg-drb-light/60 text-drb-dark dark:bg-neutral-800 dark:text-white dark:placeholder:text-gray-400 placeholder:text-drb-gray"
             autoFocus
-            onBlur={() => setShowSearch(false)}
+            onBlur={(e) => {
+              if (!e.relatedTarget?.closest(".search-suggestions")) {
+                setShowSearch(false);
+                setSearchQuery("");
+              }
+            }}
           />
-          <Button type="submit" size="icon" variant="ghost" className="absolute right-0 top-0 h-full px-3">
-            <Search className="h-4 w-4" />
+          <Button
+            type="submit"
+            size="icon"
+            variant="link"
+            className="absolute right-0 top-0 h-full px-3 text-[#E4191F]"
+          >
+            <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
           </Button>
+          <div className="search-suggestions">
+            <SearchSuggestions
+              query={searchQuery}
+              onSelect={() => {
+                setShowSearch(false);
+                setSearchQuery("");
+              }}
+            />
+          </div>
         </form>
       ) : (
-        <Button variant="outline" className="w-full" onClick={() => setShowSearch(true)}>
-          <Search className="mr-2 h-4 w-4" />
+        <Button
+          variant="outline"
+          className="w-full dark:border-neutral-700 dark:text-white"
+          onClick={() => setShowSearch(true)}
+        >
+          <Search className="mr-2 h-5 w-5" />
           Search
         </Button>
       )}
 
       <div className="space-y-1">
         <Link
-          href="/"
-          className={cn(
-            "block rounded-md px-3 py-2 text-sm font-medium",
-            pathname === "/" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
-          )}
-        >
-          Home
-        </Link>
-        <Link
           href="/products"
           className={cn(
-            "block rounded-md px-3 py-2 text-sm font-medium",
-            pathname === "/products" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+            "block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted dark:hover:bg-neutral-800",
+            pathname === "/products" ? "bg-primary text-primary-foreground" : ""
           )}
         >
           Products
         </Link>
         <Link
-          href="/categories"
+          href="/about"
           className={cn(
-            "block rounded-md px-3 py-2 text-sm font-medium",
-            pathname === "/categories" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+            "block rounded-md px-3 py-2 text-sm font-medium hover:bg-muted dark:hover:bg-neutral-800",
+            pathname === "/about" ? "bg-primary text-primary-foreground" : ""
           )}
         >
-          Categories
+          About
         </Link>
       </div>
 
       {session ? (
         <>
           <div className="space-y-1">
-            <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">Account</p>
+            <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">
+              Account
+            </p>
             <Link
               href="/profile"
               className={cn(
                 "block rounded-md px-3 py-2 text-sm font-medium",
-                pathname === "/profile" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                pathname === "/profile"
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-muted"
               )}
             >
               Profile
@@ -94,7 +126,9 @@ export default function MobileNav() {
               href="/orders"
               className={cn(
                 "block rounded-md px-3 py-2 text-sm font-medium",
-                pathname === "/orders" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                pathname === "/orders"
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-muted"
               )}
             >
               Orders
@@ -103,7 +137,9 @@ export default function MobileNav() {
               href="/cart"
               className={cn(
                 "block rounded-md px-3 py-2 text-sm font-medium",
-                pathname === "/cart" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                pathname === "/cart"
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-muted"
               )}
             >
               Cart
@@ -112,12 +148,16 @@ export default function MobileNav() {
 
           {isAdmin && (
             <div className="space-y-1">
-              <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">Admin</p>
+              <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">
+                Admin
+              </p>
               <Link
                 href="/admin"
                 className={cn(
                   "block rounded-md px-3 py-2 text-sm font-medium",
-                  pathname === "/admin" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                  pathname === "/admin"
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
                 )}
               >
                 Dashboard
@@ -126,7 +166,9 @@ export default function MobileNav() {
                 href="/admin/products"
                 className={cn(
                   "block rounded-md px-3 py-2 text-sm font-medium",
-                  pathname === "/admin/products" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                  pathname === "/admin/products"
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
                 )}
               >
                 Products
@@ -135,7 +177,9 @@ export default function MobileNav() {
                 href="/admin/categories"
                 className={cn(
                   "block rounded-md px-3 py-2 text-sm font-medium",
-                  pathname === "/admin/categories" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                  pathname === "/admin/categories"
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
                 )}
               >
                 Categories
@@ -144,7 +188,9 @@ export default function MobileNav() {
                 href="/admin/users"
                 className={cn(
                   "block rounded-md px-3 py-2 text-sm font-medium",
-                  pathname === "/admin/users" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                  pathname === "/admin/users"
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
                 )}
               >
                 Users
@@ -153,7 +199,9 @@ export default function MobileNav() {
                 href="/admin/coupons"
                 className={cn(
                   "block rounded-md px-3 py-2 text-sm font-medium",
-                  pathname === "/admin/coupons" ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                  pathname === "/admin/coupons"
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
                 )}
               >
                 Coupons
@@ -181,5 +229,5 @@ export default function MobileNav() {
         </div>
       )}
     </div>
-  )
+  );
 }

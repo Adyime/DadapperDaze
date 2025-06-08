@@ -1,7 +1,7 @@
-import Link from "next/link"
-import Image from "next/image"
+import Link from "next/link";
+import Image from "next/image";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -9,30 +9,34 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
-import { prisma } from "@/lib/db"
+} from "@/components/ui/pagination";
+import { prisma } from "@/lib/db";
 
 interface AdminProductsListProps {
-  query: string
-  categoryId?: string
-  page: number
+  query: string;
+  categoryId?: string;
+  page: number;
 }
 
-export default async function AdminProductsList({ query, categoryId, page }: AdminProductsListProps) {
-  const limit = 10
-  const skip = (page - 1) * limit
+export default async function AdminProductsList({
+  query,
+  categoryId,
+  page,
+}: AdminProductsListProps) {
+  const limit = 10;
+  const skip = (page - 1) * limit;
 
-  const where: any = {}
+  const where: any = {};
 
   if (query) {
     where.OR = [
       { name: { contains: query, mode: "insensitive" } },
       { description: { contains: query, mode: "insensitive" } },
-    ]
+    ];
   }
 
   if (categoryId) {
-    where.categoryId = categoryId
+    where.categoryId = categoryId;
   }
 
   const [products, total] = await Promise.all([
@@ -51,8 +55,8 @@ export default async function AdminProductsList({ query, categoryId, page }: Adm
           },
           take: 1,
           orderBy: {
-            order: 'asc'
-          }
+            order: "asc",
+          },
         },
         category: {
           select: {
@@ -65,9 +69,9 @@ export default async function AdminProductsList({ query, categoryId, page }: Adm
       take: limit,
     }),
     prisma.product.count({ where }),
-  ])
+  ]);
 
-  const totalPages = Math.ceil(total / limit)
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="space-y-4">
@@ -86,7 +90,9 @@ export default async function AdminProductsList({ query, categoryId, page }: Adm
               <div className="relative w-16 h-16">
                 {product.images[0] ? (
                   <Image
-                    src={`data:image/jpeg;base64,${Buffer.from(product.images[0].image).toString('base64')}`}
+                    src={`data:image/jpeg;base64,${Buffer.from(
+                      product.images[0].image
+                    ).toString("base64")}`}
                     alt={product.name}
                     fill
                     className="object-cover rounded-lg"
@@ -103,7 +109,9 @@ export default async function AdminProductsList({ query, categoryId, page }: Adm
                 {product.discountedPrice ? (
                   <div className="space-y-1">
                     <div className="font-medium">{product.discountedPrice}</div>
-                    <div className="text-sm text-muted-foreground line-through">{product.price}</div>
+                    <div className="text-sm text-muted-foreground line-through">
+                      {product.price}
+                    </div>
                   </div>
                 ) : (
                   <div className="font-medium">{product.price}</div>
@@ -118,7 +126,9 @@ export default async function AdminProductsList({ query, categoryId, page }: Adm
           ))}
 
           {products.length === 0 && (
-            <div className="p-4 text-center text-muted-foreground">No products found.</div>
+            <div className="p-4 text-center text-muted-foreground">
+              No products found.
+            </div>
           )}
         </div>
       </div>
@@ -160,5 +170,5 @@ export default async function AdminProductsList({ query, categoryId, page }: Adm
         </Pagination>
       )}
     </div>
-  )
+  );
 }

@@ -1,31 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Nunito:wght@400;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Nunito:wght@400;600&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 body {
-  @apply font-body bg-drb-light text-drb-dark;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  @apply font-heading;
-}
-
-a {
-  @apply transition-colors duration-200;
-}
-
-.section-title {
-  @apply font-heading text-3xl md:text-4xl font-bold text-drb-dark mb-8;
-}
-
-.card {
-  @apply bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-drb-light;
-}
-
-.btn-pink {
-  @apply bg-drb-pink text-white font-heading rounded-full px-8 py-3 text-lg shadow hover:bg-drb-muted transition;
+  @apply font-body bg-white text-black;
 }
 
 @layer utilities {

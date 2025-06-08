@@ -1,47 +1,54 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { CreditCard, Truck } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { CreditCard, Truck } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/components/ui/use-toast"
-import { loadScript } from "@/lib/razorpay"
-import AddressSelector from "@/components/address-selector"
-import { Address } from "@/components/address-form-dialog"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/components/ui/use-toast";
+import { loadScript } from "@/lib/razorpay";
+import AddressSelector from "@/components/address-selector";
+import { Address } from "@/components/address-form-dialog";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   paymentMethod: z.enum(["RAZORPAY", "COD"]),
-})
+});
 
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formSchema>;
 
 interface CheckoutFormProps {
   user: {
-    id: string
-    name: string | null
-    email: string | null
-  }
+    id: string;
+    name: string | null;
+    email: string | null;
+  };
 }
 
 export default function CheckoutForm({ user }: CheckoutFormProps) {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [orderData, setOrderData] = useState<any>(null)
-  const [cartTotal, setCartTotal] = useState(0)
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderData, setOrderData] = useState<any>(null);
+  const [cartTotal, setCartTotal] = useState(0);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
   useEffect(() => {
     // Load Razorpay script
-    loadScript("https://checkout.razorpay.com/v1/checkout.js")
-    
+    loadScript("https://checkout.razorpay.com/v1/checkout.js");
+
     // Get cart total for Razorpay payment amount
     async function getCartTotal() {
       try {
@@ -52,16 +59,16 @@ export default function CheckoutForm({ user }: CheckoutFormProps) {
         console.error("Error fetching cart total:", error);
       }
     }
-    
+
     getCartTotal();
-  }, [])
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       paymentMethod: "RAZORPAY",
     },
-  })
+  });
 
   async function onSubmit(values: FormValues) {
     if (!selectedAddress) {
@@ -69,11 +76,11 @@ export default function CheckoutForm({ user }: CheckoutFormProps) {
         title: "Error",
         description: "Please select or add a shipping address",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       if (values.paymentMethod === "RAZORPAY") {
@@ -132,7 +139,7 @@ export default function CheckoutForm({ user }: CheckoutFormProps) {
                 title: "Payment successful",
                 description: "Thank you for your purchase!",
               });
-              
+
               router.push(`/orders/${orderData.id}`);
             } else {
               const errorData = await paymentResponse.json();
@@ -171,39 +178,39 @@ export default function CheckoutForm({ user }: CheckoutFormProps) {
             country: selectedAddress.country,
           },
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to place order")
+        throw new Error(data.error || "Failed to place order");
       }
 
       toast({
         title: "Order placed successfully",
         description: "Thank you for your purchase!",
-      })
+      });
 
-      router.push(`/orders/${data.id}`)
+      router.push(`/orders/${data.id}`);
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Could not place order",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
   // Handle address selection
   const handleAddressSelect = (address: Address) => {
-    setSelectedAddress(address)
-  }
+    setSelectedAddress(address);
+  };
 
   return (
     <div className="rounded-lg border bg-card p-6 shadow-sm">
-      <AddressSelector 
+      <AddressSelector
         userId={user.id}
         onSelect={handleAddressSelect}
         selectedAddressId={selectedAddress?.id}
@@ -235,14 +242,15 @@ export default function CheckoutForm({ user }: CheckoutFormProps) {
                           className={cn(
                             "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-white p-4 cursor-pointer hover:bg-muted/5",
                             "peer-data-[state=checked]:border-primary",
-                            field.value === "RAZORPAY" && "border-primary bg-primary/5"
+                            field.value === "RAZORPAY" &&
+                              "border-primary bg-primary/5"
                           )}
                         >
                           <CreditCard className="mb-3 h-6 w-6" />
                           <div className="font-medium">Pay Online</div>
                         </label>
                       </div>
-                      
+
                       <div>
                         <RadioGroupItem
                           value="COD"
@@ -254,7 +262,8 @@ export default function CheckoutForm({ user }: CheckoutFormProps) {
                           className={cn(
                             "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-white p-4 cursor-pointer hover:bg-muted/5",
                             "peer-data-[state=checked]:border-primary",
-                            field.value === "COD" && "border-primary bg-primary/5"
+                            field.value === "COD" &&
+                              "border-primary bg-primary/5"
                           )}
                         >
                           <Truck className="mb-3 h-6 w-6" />
@@ -268,14 +277,14 @@ export default function CheckoutForm({ user }: CheckoutFormProps) {
               )}
             />
 
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full"
               disabled={isSubmitting || !selectedAddress}
             >
               {isSubmitting ? "Processing..." : "Place Order"}
             </Button>
-            
+
             {!selectedAddress && (
               <p className="text-sm text-destructive mt-2">
                 Please select or add a shipping address to continue.
@@ -285,5 +294,5 @@ export default function CheckoutForm({ user }: CheckoutFormProps) {
         </Form>
       </div>
     </div>
-  )
+  );
 }

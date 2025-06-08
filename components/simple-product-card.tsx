@@ -1,63 +1,66 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 
-import { formatPrice } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ShoppingCart } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
-import { useToast } from "@/components/ui/use-toast"
+import { formatPrice } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SimpleProductCardProps {
   product: {
-    id: string
-    name: string
-    slug: string
-    description: string
-    price: number
-    discountedPrice: number | null
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+    price: number;
+    discountedPrice: number | null;
     category: {
-      name: string
-      slug: string
-    }
+      name: string;
+      slug: string;
+    };
     images: {
-      id: string
-      image: string | null // Now a data URL string (data:image/jpeg;base64,...) or null
-      color?: string | null
-    }[]
+      id: string;
+      image: string | null;
+      color?: string | null;
+    }[];
     variants: {
-      id: string
-      color: string
-      size: string
-      stock: number
-    }[]
-  }
+      id: string;
+      color: string;
+      size: string;
+      stock: number;
+    }[];
+  };
 }
 
-// Client Component
 export default function SimpleProductCard({ product }: SimpleProductCardProps) {
   const discount = product.discountedPrice
-    ? Math.round(((product.price - product.discountedPrice) / product.price) * 100)
-    : 0
+    ? Math.round(
+        ((product.price - product.discountedPrice) / product.price) * 100
+      )
+    : 0;
 
   const [imageError, setImageError] = useState(false);
 
   // Get unique colors from variants
-  const uniqueColors = [...new Set(product.variants.map(variant => variant.color))];
+  const uniqueColors = [
+    ...new Set(product.variants.map((variant) => variant.color)),
+  ];
 
   // Create a map of color to image and variant information
-  const colorImagesMap = uniqueColors.map(color => {
-    // Find the first image for this color
-    const colorImages = product.images.filter(img => img.color === color);
-    const firstImage = colorImages.length > 0 ? colorImages[0] : product.images[0] || null;
-    
-    // Find a variant for this color (for the Add to Cart functionality)
-    const variant = product.variants.find(v => v.color === color && v.stock > 0) || null;
-    
+  const colorImagesMap = uniqueColors.map((color) => {
+    const colorImages = product.images.filter((img) => img.color === color);
+    const firstImage =
+      colorImages.length > 0 ? colorImages[0] : product.images[0] || null;
+
+    const variant =
+      product.variants.find((v) => v.color === color && v.stock > 0) || null;
+
     return {
       color,
       image: firstImage,
@@ -66,91 +69,145 @@ export default function SimpleProductCard({ product }: SimpleProductCardProps) {
     };
   });
 
-  // State for currently selected color
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
-  
-  // Get the currently selected color data
   const selectedColor = colorImagesMap[selectedColorIndex] || colorImagesMap[0];
 
-  // Get image URL with fallback
   const hasImage = Boolean(selectedColor?.image?.image) && !imageError;
-  const imageUrl = selectedColor?.image?.image || "/placeholder.svg?height=400&width=400";
-  
+  const imageUrl =
+    selectedColor?.image?.image || "/placeholder.svg?height=400&width=400";
+
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-lg border bg-background">
-      <Link href={`/products/${product.slug}`} className="aspect-square overflow-hidden bg-muted relative">
-        {hasImage ? (
-          <Image
-            src={imageUrl}
-            alt={`${product.name} - ${selectedColor?.color || 'Product'}`}
-            width={400}
-            height={400}
-            className="object-cover transition-transform group-hover:scale-105 h-full w-full"
-            onError={() => setImageError(true)}
-            priority
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full w-full bg-muted text-muted-foreground text-center p-4">
-            <span>No image available</span>
-          </div>
-        )}
-        {discount > 0 && (
-          <Badge className="absolute top-2 right-2 bg-green-600 hover:bg-green-700">{discount}% OFF</Badge>
-        )}
-      </Link>
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="font-medium">
-          <Link href={`/products/${product.slug}`}>{product.name}</Link>
-        </h3>
-        <div className="flex items-center gap-2 mt-1">
-          <p className="text-sm text-muted-foreground">{product.category.name}</p>
-          {selectedColor && (
-            <>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-sm font-medium">{selectedColor.color}</span>
-            </>
-          )}
-        </div>
-        <div className="mt-2 flex items-center gap-2">
-          {product.discountedPrice ? (
-            <>
-              <span className="font-medium">{formatPrice(product.discountedPrice)}</span>
-              <span className="text-sm text-muted-foreground line-through">{formatPrice(product.price)}</span>
-            </>
+    <div className="bg-white  border shadow-xl border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
+      {/* Image Container - Fixed Height */}
+      <div className="relative h-64 bg-gray-50">
+        <Link href={`/products/${product.slug}`} className="block h-full">
+          {hasImage ? (
+            <Image
+              src={imageUrl}
+              alt={`${product.name} - ${selectedColor?.color || "Product"}`}
+              width={400}
+              height={256}
+              className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+              onError={() => setImageError(true)}
+              priority
+            />
           ) : (
-            <span className="font-medium">{formatPrice(product.price)}</span>
+            <div className="flex items-center justify-center h-full text-gray-400">
+              <div className="text-center">
+                <svg
+                  className="w-12 h-12 mx-auto mb-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-sm">No Image</span>
+              </div>
+            </div>
+          )}
+        </Link>
+
+        {/* Discount Badge */}
+        {discount > 0 && (
+          <div className="absolute top-3 right-3">
+            <Badge className="bg-red-500 text-white text-xs font-semibold px-2 py-1">
+              -{discount}%
+            </Badge>
+          </div>
+        )}
+      </div>
+
+      {/* Content Container - Flexible Height */}
+      <div className="p-4 flex-1 flex flex-col">
+        {/* Category */}
+        <div className="mb-2">
+          <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+            {product.category.name}
+          </span>
+        </div>
+
+        {/* Product Name */}
+        <div className="mb-3">
+          <Link href={`/products/${product.slug}`}>
+            <h3 className="font-semibold text-gray-900 text-base leading-tight hover:text-gray-700 transition-colors line-clamp-2 min-h-[2.5rem]">
+              {product.name}
+            </h3>
+          </Link>
+        </div>
+
+        {/* Price - Consistent Height */}
+        <div className="mb-4 min-h-[2rem] flex items-center">
+          {product.discountedPrice ? (
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-lg text-gray-900">
+                {formatPrice(product.discountedPrice)}
+              </span>
+              <span className="text-sm text-gray-500 line-through">
+                {formatPrice(product.price)}
+              </span>
+            </div>
+          ) : (
+            <span className="font-bold text-lg text-gray-900">
+              {formatPrice(product.price)}
+            </span>
           )}
         </div>
-        
-        {/* Display color options */}
-        <div className="mt-3 flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Colors:</span>
-          <div className="flex gap-1">
-            {colorImagesMap.map((item, index) => (
-              <div 
-                key={index}
-                className={`w-6 h-6 rounded-full border-2 ${
-                  item.inStock ? 'cursor-pointer hover:scale-110 transition-transform' : 'opacity-50 cursor-not-allowed'
-                } ${selectedColorIndex === index ? 'ring-2 ring-offset-2 ring-primary' : ''}`}
-                style={{ 
-                  backgroundColor: item.color.toLowerCase(),
-                  borderColor: item.inStock ? '#000' : 'transparent'
-                }}
-                title={`${item.color}${!item.inStock ? ' (Out of stock)' : ''}`}
-                onClick={(e) => {
-                  if (item.inStock) {
-                    e.preventDefault();
-                    setSelectedColorIndex(index);
-                    setImageError(false); // Reset image error when changing color
-                  }
-                }}
-              />
-            ))}
+
+        {/* Color Selection - Only show if multiple colors */}
+        {colorImagesMap.length > 1 && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">
+                {selectedColor?.color}
+              </span>
+              <span className="text-xs text-gray-500">
+                {colorImagesMap.length} colors
+              </span>
+            </div>
+            <div className="flex gap-1.5">
+              {colorImagesMap.slice(0, 6).map((item, index) => (
+                <button
+                  key={index}
+                  className={`w-6 h-6 rounded-full border-2 transition-all duration-200 ${
+                    item.inStock
+                      ? "cursor-pointer hover:scale-110"
+                      : "opacity-40 cursor-not-allowed"
+                  } ${
+                    selectedColorIndex === index
+                      ? "ring-2 ring-offset-1 ring-blue-500 border-blue-500"
+                      : "border-gray-300"
+                  }`}
+                  style={{
+                    backgroundColor: item.color.toLowerCase(),
+                  }}
+                  title={`${item.color}${
+                    !item.inStock ? " (Out of stock)" : ""
+                  }`}
+                  onClick={() => {
+                    if (item.inStock) {
+                      setSelectedColorIndex(index);
+                      setImageError(false);
+                    }
+                  }}
+                  disabled={!item.inStock}
+                />
+              ))}
+              {colorImagesMap.length > 6 && (
+                <span className="text-xs text-gray-500 self-center ml-1">
+                  +{colorImagesMap.length - 6}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-        
-        <div className="mt-4">
-          <SimpleAddToCartButton 
+        )}
+
+        {/* Add to Cart Button - Always at bottom */}
+        <div className="mt-auto">
+          <SimpleAddToCartButton
             product={product}
             selectedVariantId={selectedColor?.variantId}
             hasStock={!!selectedColor?.inStock}
@@ -158,28 +215,27 @@ export default function SimpleProductCard({ product }: SimpleProductCardProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-// Client Component for Add to Cart Button
-function SimpleAddToCartButton({ 
-  product, 
+function SimpleAddToCartButton({
+  product,
   selectedVariantId,
-  hasStock
-}: { 
-  product: SimpleProductCardProps['product'],
-  selectedVariantId: string | undefined,
-  hasStock: boolean
+  hasStock,
+}: {
+  product: SimpleProductCardProps["product"];
+  selectedVariantId: string | undefined;
+  hasStock: boolean;
 }) {
-  const router = useRouter()
-  const { data: session } = useSession()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleAddToCart() {
     if (!session) {
-      router.push("/login?callbackUrl=/cart")
-      return
+      router.push("/login?callbackUrl=/cart");
+      return;
     }
 
     if (!hasStock || !selectedVariantId) {
@@ -187,11 +243,11 @@ function SimpleAddToCartButton({
         title: "Out of Stock",
         description: "This product is currently out of stock",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       const response = await fetch("/api/cart", {
@@ -204,37 +260,41 @@ function SimpleAddToCartButton({
           variantId: selectedVariantId,
           quantity: 1,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to add item to cart")
+        throw new Error("Failed to add item to cart");
       }
 
       toast({
         title: "Added to cart",
         description: "The item has been added to your cart",
-      })
+      });
 
-      router.refresh()
+      router.refresh();
     } catch (error) {
       toast({
         title: "Error",
         description: "Could not add item to cart",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   return (
-    <Button 
-      onClick={handleAddToCart} 
-      disabled={isLoading || !hasStock} 
-      className="w-full"
+    <Button
+      onClick={handleAddToCart}
+      disabled={isLoading || !hasStock}
+      className={`w-full py-2.5 text-sm font-medium rounded-md transition-colors ${
+        hasStock
+          ? "bg-gray-900 hover:bg-gray-800 text-white"
+          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+      }`}
     >
       <ShoppingCart className="mr-2 h-4 w-4" />
-      {hasStock ? "Add to Cart" : "Out of Stock"}
+      {isLoading ? "Adding..." : hasStock ? "Add to Cart" : "Out of Stock"}
     </Button>
-  )
-} 
+  );
+}

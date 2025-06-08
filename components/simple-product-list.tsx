@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Suspense } from "react"
-import ProductCardSkeleton from "@/components/product-card-skeleton"
-import SimpleProductCard from "@/components/simple-product-card"
+import { useState, useEffect } from "react";
+import { Suspense } from "react";
+import ProductCardSkeleton from "@/components/product-card-skeleton";
+import SimpleProductCard from "@/components/simple-product-card";
 import {
   Pagination,
   PaginationContent,
@@ -11,23 +11,23 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
 
 interface SimpleProductListProps {
-  categoryId?: string
-  minPrice?: number
-  maxPrice?: number
-  sort?: string
-  page?: number
+  categoryId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: string;
+  page?: number;
   initialProducts: {
-    products: any[]
+    products: any[];
     pagination: {
-      total: number
-      pages: number
-      page: number
-      limit: number
-    }
-  }
+      total: number;
+      pages: number;
+      page: number;
+      limit: number;
+    };
+  };
 }
 
 export default function SimpleProductList({
@@ -38,29 +38,25 @@ export default function SimpleProductList({
   page = 1,
   initialProducts,
 }: SimpleProductListProps) {
-  const [products, setProducts] = useState(initialProducts.products)
-  const [pagination, setPagination] = useState(initialProducts.pagination)
-  const [loading, setLoading] = useState(false)
+  const [products, setProducts] = useState(initialProducts.products);
+  const [pagination, setPagination] = useState(initialProducts.pagination);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setProducts(initialProducts.products)
-    setPagination(initialProducts.pagination)
-  }, [initialProducts])
+    setProducts(initialProducts.products);
+    setPagination(initialProducts.pagination);
+  }, [initialProducts]);
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {loading ? (
-          Array(12)
-            .fill(null)
-            .map((_, i) => (
-              <ProductCardSkeleton key={i} />
-            ))
-        ) : (
-          products.map((product) => (
-            <SimpleProductCard key={product.id} product={product} />
-          ))
-        )}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-6">
+        {loading
+          ? Array(12)
+              .fill(null)
+              .map((_, i) => <ProductCardSkeleton key={i} />)
+          : products.map((product) => (
+              <SimpleProductCard key={product.id} product={product} />
+            ))}
       </div>
 
       {pagination.pages > 1 && (
@@ -112,5 +108,5 @@ export default function SimpleProductList({
         </div>
       )}
     </div>
-  )
-} 
+  );
+}

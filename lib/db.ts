@@ -1,16 +1,18 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@prisma/client";
 
-// PrismaClient is attached to the `global` object in development to prevent
-// exhausting your database connection limit.
-const globalForPrisma = global as unknown as { prisma: PrismaClient }
+// Ensure only one instance is created across hot reloads
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-// Initialize Prisma client
-export const prisma = new PrismaClient()
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
 
 // Memory cache implementation
-const memoryCache = new Map<string, { data: string; expiry?: number }>()
+const memoryCache = new Map<string, { data: string; expiry?: number }>();
 
 // Cache helper functions
 export async function getCache(key: string) {
@@ -31,14 +33,18 @@ export async function getCache(key: string) {
   }
 }
 
-export async function setCache(key: string, data: any, expireInSeconds?: number) {
+export async function setCache(
+  key: string,
+  data: any,
+  expireInSeconds?: number
+) {
   try {
     const stringData = JSON.stringify(data);
-    
+
     // Set in memory cache
-    memoryCache.set(key, { 
+    memoryCache.set(key, {
       data: stringData,
-      expiry: expireInSeconds ? Date.now() + (expireInSeconds * 1000) : undefined
+      expiry: expireInSeconds ? Date.now() + expireInSeconds * 1000 : undefined,
     });
   } catch (error) {
     console.error("Cache set error:", error);
@@ -58,7 +64,7 @@ export async function invalidateCachePattern(pattern: string) {
   try {
     // For memory cache, do a simple pattern match
     for (const key of memoryCache.keys()) {
-      if (key.includes(pattern.replace('*', ''))) {
+      if (key.includes(pattern.replace("*", ""))) {
         memoryCache.delete(key);
       }
     }

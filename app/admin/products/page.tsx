@@ -1,20 +1,20 @@
-import { Suspense } from "react"
-import Link from "next/link"
-import { Plus } from "lucide-react"
+import { Suspense } from "react";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Skeleton } from "@/components/ui/skeleton"
-import AdminProductsList from "@/components/admin/admin-products-list"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import AdminProductsList from "@/components/admin/admin-products-list";
 
 export default function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string; page?: string }
+  searchParams: { q?: string; category?: string; page?: string };
 }) {
-  const query = searchParams.q || ""
-  const categoryId = searchParams.category || ""
-  const page = Number(searchParams.page) || 1
+  const query = searchParams.q || "";
+  const categoryId = searchParams.category || "";
+  const page = Number(searchParams.page) || 1;
 
   return (
     <div className="space-y-6">
@@ -31,19 +31,32 @@ export default function AdminProductsPage({
       <div className="flex items-center gap-4">
         <form className="flex-1 max-w-sm">
           <div className="relative">
-            <Input placeholder="Search products..." name="q" defaultValue={query} className="pr-10" />
-            <Button type="submit" size="sm" variant="ghost" className="absolute right-0 top-0 h-full px-3">
+            <Input
+              placeholder="Search products..."
+              name="q"
+              defaultValue={query}
+              className="pr-10"
+            />
+            <Button
+              type="submit"
+              size="sm"
+              variant="ghost"
+              className="absolute right-0 top-0 h-full px-3"
+            >
               Search
             </Button>
           </div>
         </form>
       </div>
 
-      <Suspense key={`products-${query}-${categoryId}-${page}`} fallback={<ProductsListSkeleton />}>
+      <Suspense
+        key={`products-${query}-${categoryId}-${page}`}
+        fallback={<ProductsListSkeleton />}
+      >
         <AdminProductsList query={query} categoryId={categoryId} page={page} />
       </Suspense>
     </div>
-  )
+  );
 }
 
 function ProductsListSkeleton() {
@@ -80,5 +93,5 @@ function ProductsListSkeleton() {
         <Skeleton className="h-10 w-[200px]" />
       </div>
     </div>
-  )
+  );
 }

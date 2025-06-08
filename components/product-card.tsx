@@ -1,59 +1,74 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Eye, Heart } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Eye, Heart } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Product, ColorOption } from "@/types"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Product, ColorOption } from "@/types";
 
 interface ProductCardProps {
-  product: Product
-  className?: string
+  product: Product;
+  className?: string;
 }
 
-export default function ProductCard({ product, className }: ProductCardProps) {
-  const [selectedColorIndex, setSelectedColorIndex] = useState(0)
-  const hasColors = product.colorOptions && product.colorOptions.length > 0
-  const selectedColor = hasColors ? product.colorOptions[selectedColorIndex] : null
+export default function NewProductCard({
+  product,
+  className,
+}: ProductCardProps) {
+  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
+  const hasColors = product.colorOptions && product.colorOptions.length > 0;
+  const selectedColor = hasColors
+    ? product.colorOptions[selectedColorIndex]
+    : null;
 
-  const hasDiscount = product.discountedPrice !== null
-  const discount = hasDiscount 
-    ? Math.round(((product.price - product.discountedPrice!) / product.price) * 100)
-    : 0
+  const hasDiscount = product.discountedPrice !== null;
+  const discount = hasDiscount
+    ? Math.round(
+        ((product.price - product.discountedPrice!) / product.price) * 100
+      )
+    : 0;
 
   // Function to safely convert binary image data to base64
   const getImageUrl = (colorOption: ColorOption | null): string => {
-    if (!colorOption?.image?.image) return "/placeholder.jpg"
+    if (!colorOption?.image?.image) return "/placeholder.jpg";
     try {
-      const base64String = Buffer.from(colorOption.image.image).toString('base64')
-      return `data:image/jpeg;base64,${base64String}`
+      const base64String = Buffer.from(colorOption.image.image).toString(
+        "base64"
+      );
+      return `data:image/jpeg;base64,${base64String}`;
     } catch (error) {
-      console.error("Error converting image data:", error)
-      return "/placeholder.jpg"
+      console.error("Error converting image data:", error);
+      return "/placeholder.jpg";
     }
-  }
+  };
 
   // Always send color in the link if available
   const productLink = hasColors
-    ? `/products/${product.slug}?color=${encodeURIComponent(selectedColor?.color || product.colorOptions[0]?.color || "")}`
-    : `/products/${product.slug}`
+    ? `/products/${product.slug}?color=${encodeURIComponent(
+        selectedColor?.color || product.colorOptions[0]?.color || ""
+      )}`
+    : `/products/${product.slug}`;
 
   return (
-    <div className={cn(
-      "group relative bg-white rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg",
-      "border border-gray-200 hover:border-gray-300",
-      className
-    )}>
+    <div
+      className={cn(
+        "group relative bg-white rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg",
+        "border border-gray-200 hover:border-gray-300",
+        className
+      )}
+    >
       {/* Link wraps only the image and product details */}
       <Link href={productLink} className="block">
         {/* Image Container */}
         <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
           <Image
             src={getImageUrl(selectedColor)}
-            alt={`${product.name}${selectedColor ? ` - ${selectedColor.color}` : ''}`}
+            alt={`${product.name}${
+              selectedColor ? ` - ${selectedColor.color}` : ""
+            }`}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
@@ -64,11 +79,12 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             </div>
           )}
           {/* Stock Badge */}
-          {selectedColor && selectedColor.variants.every(v => v.stock === 0) && (
-            <div className="absolute top-3 right-3 bg-gray-900 text-white px-3 py-1 text-sm font-medium rounded-full">
-              Out of Stock
-            </div>
-          )}
+          {selectedColor &&
+            selectedColor.variants.every((v) => v.stock === 0) && (
+              <div className="absolute top-3 right-3 bg-gray-900 text-white px-3 py-1 text-sm font-medium rounded-full">
+                Out of Stock
+              </div>
+            )}
           {/* Hover Overlay */}
           <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
@@ -97,7 +113,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
           <p className="text-xs text-gray-500 uppercase tracking-wide">
             {product.category.name}
           </p>
-          
+
           {/* Product Name */}
           <h3 className="text-sm font-medium text-gray-900 line-clamp-2 min-h-[40px]">
             {product.name}
@@ -127,13 +143,17 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                 "w-6 h-6 rounded-full transition-transform hover:scale-110",
                 "border-2 border-white ring-1",
                 selectedColorIndex === index ? "ring-primary" : "ring-gray-200",
-                colorOpt.variants.every(v => v.stock === 0) && "opacity-50"
+                colorOpt.variants.every((v) => v.stock === 0) && "opacity-50"
               )}
               style={{ backgroundColor: colorOpt.color.toLowerCase() }}
-              title={`${colorOpt.color}${colorOpt.variants.every(v => v.stock === 0) ? ' (Out of Stock)' : ''}`}
-              onClick={e => {
-                e.preventDefault()
-                setSelectedColorIndex(index)
+              title={`${colorOpt.color}${
+                colorOpt.variants.every((v) => v.stock === 0)
+                  ? " (Out of Stock)"
+                  : ""
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                setSelectedColorIndex(index);
               }}
               type="button"
             />
@@ -153,7 +173,9 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                   ? "border-gray-200 text-gray-600"
                   : "border-gray-100 text-gray-400 bg-gray-50"
               )}
-              title={variant.stock > 0 ? `${variant.stock} in stock` : 'Out of stock'}
+              title={
+                variant.stock > 0 ? `${variant.stock} in stock` : "Out of stock"
+              }
             >
               {variant.size}
             </div>
@@ -161,5 +183,5 @@ export default function ProductCard({ product, className }: ProductCardProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
